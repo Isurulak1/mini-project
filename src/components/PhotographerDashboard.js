@@ -1,12 +1,15 @@
 // src/components/PhotographerDashboard.js
 import React, { useRef, useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getDoc, doc, updateDoc, arrayUnion, arrayRemove,writeBatch } from 'firebase/firestore';
+import { collection,getDocs,getDoc, doc, updateDoc, arrayUnion, arrayRemove,writeBatch } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { TextField, Button, Container, Avatar, Typography, Box, Grid, Card, CardContent, IconButton, Dialog, DialogActions, DialogContent, DialogTitle, Switch, FormControlLabel, CircularProgress } from '@mui/material';
 import Swal from 'sweetalert2';
 import { Delete as DeleteIcon, Add as AddIcon } from '@mui/icons-material';
+import { serverTimestamp } from 'firebase/firestore';
+
+
 
 function PhotographerDashboard() {
   const { currentUser } = useAuth();
@@ -22,6 +25,8 @@ function PhotographerDashboard() {
   const [viewImage, setViewImage] = useState('');
   const [bookedClients, setBookedClients] = useState([]); // New state for booked clients
   const [isAvailable, setIsAvailable] = useState(false);
+  const [confirmedClients, setConfirmedClients] = useState([]);
+   
 
   useEffect(() => {
     const fetchData = async () => {
@@ -173,37 +178,89 @@ function PhotographerDashboard() {
       const photographerRef = doc(db, 'users', currentUser.uid);
       const clientRef = doc(db, 'users', client.uid);
   
-      // Start a batch write
       const batch = writeBatch(db);
   
-      // Update photographer's booked clients
       batch.update(photographerRef, {
         bookedClients: bookedClients.map((c) =>
           c.uid === client.uid ? { ...c, confirmed: true } : c
-        )
+        ),
       });
   
-      // Update client's hired photographers
       batch.update(clientRef, {
         hiredPhotographers: arrayUnion({
           uid: currentUser.uid,
-          confirmed: true
-        })
+          confirmed: true,
+        }),
       });
   
-      // Commit the batch
       await batch.commit();
   
       Swal.fire('Success', 'Order confirmed!', 'success');
   
-      // Update the state
       setBookedClients((prev) =>
         prev.map((c) => (c.uid === client.uid ? { ...c, confirmed: true } : c))
       );
+      // Hide buttons and show "Order is completed"
+      setConfirmedClients((prev) => [...prev, client.uid]);
+
+
+      await updateDoc(clientRef, {
+        notifications: arrayUnion({
+          message: `Your hire request was confirmed by ${currentUser.username}.`,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+      // Update client's UI to indicate confirmed status
+      // Communicate with the client component to update UI (e.g., set green background)
     } catch (error) {
       Swal.fire('Error', `Failed to confirm order: ${error.message}`, 'error');
     }
   };
+  
+  const handleRejectOrder = async (client) => {
+    try {
+      const photographerRef = doc(db, 'users', currentUser.uid);
+      const clientRef = doc(db, 'users', client.uid);
+      
+      const batch = writeBatch(db);
+  
+      batch.update(photographerRef, {
+        bookedClients: bookedClients.filter(c => c.uid !== client.uid)
+      });
+  
+      batch.update(clientRef, {
+        hiredPhotographers: arrayRemove({
+          uid: currentUser.uid
+        })
+      });
+  
+      // Delete the client's message from the message box
+      const chatRef = collection(db, 'chats', `${currentUser.uid}_${client.uid}`, 'messages');
+      const messagesSnapshot = await getDocs(chatRef);
+  
+      messagesSnapshot.forEach((doc) => {
+        batch.delete(doc.ref);
+      });
+  
+      await batch.commit();
+  
+      Swal.fire('Success', `Order rejected for ${client.username}.`, 'success');
+  
+      setBookedClients((prev) =>
+        prev.filter((c) => c.uid !== client.uid)
+      );
+
+      await updateDoc(clientRef, {
+        notifications: arrayUnion({
+          message: `Your hire request was rejected by ${currentUser.username}.`,
+          timestamp: new Date().toISOString(),
+        }),
+      });
+    } catch (error) {
+      Swal.fire('Error', `Failed to reject order: ${error.message}`, 'error');
+    }
+  };
+  
   
   
   
@@ -275,25 +332,47 @@ function PhotographerDashboard() {
                 </Typography>
                 {bookedClients.length > 0 ? (
                   bookedClients.map((client, index) => (
-                    <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                      <Avatar src={client.profilePicture} alt={client.username} sx={{ width: 40, height: 40, mr: 2 }} />
-                      <Typography variant="body1">{client.username}</Typography>
-                      <Button
+                    <Box key={index} sx={{ mb: 4, p: 2, border: '1px solid #ccc', borderRadius: '8px' }}>
+                       <Typography variant="h6" sx={{ mb: 1 }}>
+                        {index + 1}. {client.username}
+                       </Typography>
+                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                       <Avatar src={client.profilePicture} alt={client.username} sx={{ width: 40, height: 40, mr: 2 }} />
+                   </Box>
+                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 2 }}>
+                     <Button
                         variant="contained"
                         color="primary"
                         onClick={() => handleViewClientChat(client)}
-                        sx={{ ml: 2, p: '8px 8px' }}
-                      >
-                        View Chat
-                      </Button>
-                      <Button
-                      variant="contained"
-                      color="primary"
-                      onClick={() => handleConfirmOrder(client)}
-                      sx={{ ml: 2, p: '8px 8px' }}
+                        sx={{ p: '8px 16px', flex: 1, mr: 1 }}
                     >
+                     View Chat
+                     </Button>
+                     {confirmedClients.includes(client.uid) ? (
+                       <Typography variant="body1" sx={{ color: 'green', flex: 1, mx: 1 }}>
+                         Order is completed
+                    </Typography>
+                       ) : (
+                       <>
+                     <Button
+                       variant="contained"
+                       color="primary"
+                       onClick={() => handleConfirmOrder(client)}
+                       sx={{ p: '8px 16px', flex: 1, mx: 1 }}
+                     >
                       Confirm Order
-                      </Button>
+                     </Button>
+                     <Button
+                       variant="contained"
+                       color="secondary"
+                       onClick={() => handleRejectOrder(client)}
+                       sx={{ p: '8px 16px', flex: 1, ml: 1 }}
+                      >
+                        Reject Order
+                    </Button>
+                    </>
+                    )}
+                    </Box>
                     </Box>
                   ))
                 ) : (

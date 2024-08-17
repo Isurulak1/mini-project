@@ -1,12 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { getDoc, doc, collection, query, where, getDocs, updateDoc,arrayUnion } from 'firebase/firestore';
+import { getDoc, doc, collection, query, where, getDocs, updateDoc,arrayUnion, arrayRemove  } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { db, storage } from '../firebase';
 import { TextField, Button, Container, Avatar, Typography, Box, Grid, Card, CardContent, IconButton, List, ListItem, ListItemAvatar, ListItemText, ListItemButton, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import DeleteIcon from '@mui/icons-material/Delete';
 import Swal from 'sweetalert2';
+import { onSnapshot } from 'firebase/firestore';
+
+
 
 function ClientDashboard() {
   const { currentUser } = useAuth();
@@ -22,7 +25,12 @@ function ClientDashboard() {
   const [viewPhotographer, setViewPhotographer] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [viewImage, setViewImage] = useState(''); // State for viewing an image
-  const [openImageDialog, setOpenImageDialog] = useState(false); // State for opening the image dialog
+  const [openImageDialog, setOpenImageDialog] = useState(false); 
+  const [hireStatus, setHireStatus] = useState('Not Hired');
+
+  
+
+  // State for opening the image dialog
 
   useEffect(() => {
     
@@ -34,7 +42,7 @@ function ClientDashboard() {
 
       const photographersQuery = query(collection(db, 'users'), where('role', '==', 'photographer'));
       const querySnapshot = await getDocs(photographersQuery);
-      const photographers = querySnapshot.docs.map(doc => doc.data());
+      const photographers = querySnapshot.docs.map(doc => ({ ...doc.data(), uid: doc.id }));
 
       console.log(photographers);
       setAllPhotographers(photographers);
@@ -46,6 +54,30 @@ function ClientDashboard() {
 
     fetchData();
   }, [currentUser]);
+
+  useEffect(() => {
+    if (!currentUser || !selectedPhotographer) {
+      // Ensure both currentUser and selectedPhotographer are available before proceeding
+      return;
+    }
+  
+    const unsubscribe = onSnapshot(doc(db, 'users', currentUser.uid), (doc) => {
+      const data = doc.data();
+      if (data.hiredPhotographers) {
+        const photographer = data.hiredPhotographers.find(
+          (p) => p.uid === selectedPhotographer.uid && p.confirmed
+        );
+        if (photographer) {
+          setIsHired(true);
+          setHireStatus('Hired');
+          Swal.fire('Success', `Order is completed with ${selectedPhotographer.username}.`, 'success');
+        }
+      }
+    });
+  
+    return () => unsubscribe();
+  }, [currentUser, selectedPhotographer]);
+  
 
   const handleFileChange = (e) => {
     setFile(e.target.files[0]);
@@ -165,6 +197,9 @@ function ClientDashboard() {
     setOpenImageDialog(false);
   };
 
+  const [isHired, setIsHired] = useState(false);
+  const [isPending, setIsPending] = useState(false);
+
   const handleHire = async () => {
 
     if (!selectedPhotographer || !selectedPhotographer.uid) {
@@ -174,21 +209,38 @@ function ClientDashboard() {
     }
 
     try {
-      // Add the client to the photographer's booked clients list
-      await updateDoc(doc(db, 'users', selectedPhotographer.uid), {
-        bookedClients: arrayUnion({
-          username: usernameRef.current.value,
-          uid: currentUser.uid,
-          profilePicture: profilePicture,
-        }),
-      });
+      if (!isHired && !isPending) {
+        // Hire logic
+        await updateDoc(doc(db, 'users', selectedPhotographer.uid), {
+          bookedClients: arrayUnion({
+            username: usernameRef.current.value,
+            uid: currentUser.uid,
+            profilePicture: profilePicture,
+            confirmed: false, // Initially not confirmed
+          }),
+        });
 
-      Swal.fire('Success', `You have hired ${selectedPhotographer.username}!`, 'success');
-      setSelectedPhotographer(null);
+        setHireStatus('Pending');
+        Swal.fire('Success', `Your hire request for ${selectedPhotographer.username} is pending confirmation.`, 'success');
+        setIsPending(true);
+      } else if (isPending) {
+        // Cancel pending hire
+        await updateDoc(doc(db, 'users', selectedPhotographer.uid), {
+          bookedClients: arrayRemove({
+            uid: currentUser.uid,
+          }),
+        });
+
+        setHireStatus('Not Hired');
+        Swal.fire('Cancelled', `You have cancelled the hire for ${selectedPhotographer.username}.`, 'info');
+        setIsPending(false);
+      }
     } catch (error) {
       Swal.fire('Error', error.message, 'error');
     }
   };
+
+
 
   return (
     <>
@@ -362,23 +414,24 @@ function ClientDashboard() {
                   <Box sx={{ mt: 2 }}>Chat interface</Box>
                 </CardContent>
               </Card>
-              <Card sx={{ p: 2, boxShadow: 3 }}>
+              <Card sx={{ p: 2, boxShadow: 3, backgroundColor: hireStatus === 'Confirmed' ? 'green' : 'white' }}>
               <CardContent>
                 <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography component="h2" variant="h6" sx={{ fontWeight: 'bold' }}>
-                    HIRE {selectedPhotographer.username}
-                  </Typography>
+                <Typography component="h2" variant="h6" sx={{ fontWeight: 'bold', color: hireStatus === 'Confirmed' ? 'white' : 'black'  }}>
+                  {isHired ? 'Hired is confirmed. Good luck!' : isPending ? 'Pending confirmation' : `HIRE ${selectedPhotographer.username}`}
+                </Typography>
+                {!isHired && (
                   <Box sx={{ display: 'flex', gap: 1 }}>
-                  <Button variant="outlined" color="primary" onClick={handleHire}>
-                      Hire
-                    </Button>
+                  <Button variant="outlined" color="primary" onClick={handleHire}>{isHired ? 'Cancel Hire' : 'Hire'}
+                  </Button>
                   <Button variant="outlined" color="primary" onClick={handleBack}>
                     Back
                   </Button>
-                  </Box>  
+                  </Box>
+                )}  
                 </Box>
                 {/* Chat interface will go here */}
-                <Box sx={{ mt: 2 }}>You can hire me!</Box>
+                <Box sx={{ mt: 2 }}>{isHired ? 'Hired is confirmed. Good luck!' : isPending ? 'Waiting for confirmation...' : 'You can hire me!'}</Box>
               </CardContent>
             </Card>
             </Box>
