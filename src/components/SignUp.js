@@ -3,7 +3,7 @@ import React, { useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db, auth } from '../firebase';
 import { TextField, Button, Container, Typography, Box, Card, CardContent, FormControl, Select, MenuItem } from '@mui/material';
 import Swal from 'sweetalert2';
@@ -21,6 +21,13 @@ function Signup() {
     setRole(event.target.value);
   };
 
+  const checkUsernameExists = async (username) => {
+    const userCollection = collection(db, 'users');
+    const q = query(userCollection, where('username', '==', username));
+    const userSnapshot = await getDocs(q);
+    return !userSnapshot.empty;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -30,6 +37,13 @@ function Signup() {
       !role
     ) {
       Swal.fire('Error', 'Please fill all the details', 'error');
+      return;
+    }
+
+    // Check if the username already exists
+    const usernameExists = await checkUsernameExists(usernameRef.current.value);
+    if (usernameExists) {
+      Swal.fire('Error', 'Username already taken', 'error');
       return;
     }
 
