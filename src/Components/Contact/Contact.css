@@ -1,0 +1,68 @@
+.contact{
+    width: 100%;
+    display: flex;
+    margin: 40px 0;
+    
+}
+.contact h1{
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+.contactcolumn{
+    display: flex;
+    
+}
+
+.col-1{
+    flex-basis: 48%;
+}
+
+.col-2{
+    flex-basis: 48%;
+}
+
+
+.col-1 ul li{
+    text-decoration: none;
+    display: flex;
+    margin: 10px 0;
+}
+
+.contact form input, .contact form textarea{
+    display: block;
+    border-radius: 5px;
+    width: 100%;
+    padding: 20px;
+    font-size: 15px;
+    border: 0;
+    outline: 0;
+    margin-bottom: 15px;
+    margin-top: 5px;
+    resize: none;
+    background: rgb(240, 240, 240);
+}
+
+.sbmt-btn{
+    color: rgba(82, 124, 217, 1);
+    background: transparent;
+    border: solid rgba(82, 124, 217, 1);
+    border-width: 2px;
+    padding: 10px 40px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: .4s;
+}
+
+.sbmt-btn:hover{
+    background: rgba(82, 124, 217, 1);
+    color: white;
+}
+
+.sbmt-btn:active{
+    transition: .1s;
+    background: rgb(110, 155, 251);
+    border-color: rgb(110, 155, 251);
+    
+}
+

@@ -1,0 +1,39 @@
+.about{
+    margin: 40px 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    
+}
+.about-img{
+    width: 100%;
+    border-radius: 10px;
+       
+}
+.about-left{
+    flex-basis: 40%;
+}
+
+.about-right{
+    flex-basis: 56%;
+}
+
+.about-right h1{
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+.line{
+    margin-bottom: 25px;
+    width: 80px;
+    border-radius: 50px;
+    height: 15px;
+    background: rgba(82, 124, 217, 1);
+    
+}
+
+.about-right p{
+    font-size: 18px;
+}
+
+

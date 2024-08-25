@@ -1,0 +1,77 @@
+.choose{
+    width: 100%;
+    margin-top: 40px;
+    margin-bottom: 80px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+}
+.choose h1{
+    font-size: 40px;
+    margin-bottom: 15px;
+}
+
+.line-choose{
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 25px;
+    width: 80px;
+    border-radius: 50px;
+    height: 15px;
+    background: rgba(82, 124, 217, 1);
+    
+}
+
+.ch-btn-ph{
+    color: rgba(82, 124, 217, 1);
+    background: transparent;
+    border: solid rgba(82, 124, 217, 1);
+    border-width: 2px;
+    padding: 20px 120px;
+    border-radius: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    margin: 10px 20px;
+    margin-bottom: 10px;
+    transition: .3s;
+
+}
+
+.ch-btn-cl{
+    color: rgba(82, 124, 217, 1);
+    background: transparent;
+    border: solid rgba(82, 124, 217, 1);
+    border-width: 2px;
+    padding: 20px 165px;
+    border-radius: 50px;
+    font-size: 24px;
+    cursor: pointer;
+    margin: 10px 20px;
+    margin-bottom: 10px;
+    transition: .3s;
+
+}
+
+.ch-btn-ph:hover{
+    background: rgba(82, 124, 217, 1);
+    color: white;
+}
+
+.ch-btn-cl:hover{
+    background: rgba(82, 124, 217, 1);
+    color: white;
+}
+
+
+
+.ch-btn-ph:active{
+    transition: .1s;
+    background: rgb(110, 155, 251);
+    border-color: rgb(110, 155, 251);
+}
+
+.ch-btn-cl:active{
+    transition: .1s;
+    background: rgb(110, 155, 251);
+    border-color: rgb(110, 155, 251);
+}

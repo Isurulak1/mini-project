@@ -1,19 +1,22 @@
-// src/App.js
 import React from 'react';
+import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Signup from './components/SignUp';
-import Login from './components/Login';
-import ClientDashboard from './components/ClientDashboard';
-import PhotographerDashboard from './components/PhotographerDashboard';
+import Home from './Pages/Home';
+import ClientDashboard from './Pages/ClientDashboard';
+import PhotographerDashboard from './Pages/PhotographerDashboard';
+import Signup from './Pages/SignUp';
+import Login from './Pages/Login';
 import { AuthProvider } from './context/AuthContext';
-import PrivateRoute from './components/PrivateRoute';
+import PrivateRoute from './Pages/PrivateRoute';
 
 function App() {
+
   return (
+    <>
     <Router>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<Signup />} />
+          <Route path="/" element={<Home />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
           <Route path="/client-dashboard" element={<PrivateRoute><ClientDashboard /></PrivateRoute>} />
@@ -21,6 +24,7 @@ function App() {
         </Routes>
       </AuthProvider>
     </Router>
+    </>
   );
 }
 
