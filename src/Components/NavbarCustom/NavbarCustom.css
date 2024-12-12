@@ -1,33 +1,32 @@
-.navbar-custom{
-    width: 100%;
-    background: white;
-    padding: 8px 0;
-    top: 0;
-    left: 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    z-index: 10;
-    height: 80px;
-    padding-left: 8%;
-    padding-right: 8%;
+.navbar-custom {
+  width: 100%;
+  background: white;
+  padding: 8px 0;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 10;
+  height: 80px;
+  padding-left: 8%;
+  padding-right: 8%;
 }
-.logo{
-    width: 60px;
-    height: 60px;
-
+.logo {
+  width: 60px;
+  height: 60px;
 }
-.logo-head{
-    display: flex;
-    align-items: center;
+.logo-head {
+  display: flex;
+  align-items: center;
 }
-.logo-text h2{
-    font-size: 18px;
-    color: rgba(82, 124, 217, 1);
+.logo-text h2 {
+  font-size: 18px;
+  color: rgba(82, 124, 217, 1);
 }
-.logo-text p{
-    font-size: 12px;
-    color: rgba(82, 124, 217, 1);
+.logo-text p {
+  font-size: 12px;
+  color: rgba(82, 124, 217, 1);
 }
 
 /*nav ul li{
@@ -39,44 +38,44 @@
     transition: .4s;
     
 }*/
-nav ul{
-    list-style: none;
-    display: flex;
-    text-align: center;
-    align-items: center;
-    justify-content: center;
+nav ul {
+  list-style: none;
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
 }
 
-nav ul li{
-    padding: 10px 10px;
+nav ul li {
+  padding: 10px 10px;
 }
 
-ul .basic-btn{
-    margin-left: 15px;
+ul .basic-btn {
+  margin-left: 15px;
 }
 
-.basic-btn{
-    color: rgba(82, 124, 217, 1);
-    background: transparent;
-    border: solid rgba(82, 124, 217, 1);
-    border-width: 2px;
-    padding: 10px 40px;
-    border-radius: 20px;
-    cursor: pointer;
+.basic-btn {
+  color: rgba(82, 124, 217, 1);
+  background: transparent;
+  border: solid rgba(82, 124, 217, 1);
+  border-width: 2px;
+  padding: 10px 40px;
+  border-radius: 20px;
+  cursor: pointer;
 }
-.basic-btn:hover{
-    background: rgba(82, 124, 217, 1);
-    color: white;
+.basic-btn:hover {
+  background: rgba(82, 124, 217, 1);
+  color: white;
 }
-.basic-btn:active{
-    transition: .1s;
-    background: rgb(110, 155, 251);
-    border-color: rgb(110, 155, 251);
+.basic-btn:active {
+  transition: 0.1s;
+  background: rgb(110, 155, 251);
+  border-color: rgb(110, 155, 251);
 }
-.profile-photo{
-    width: 40px;
-    height: 40px;
-    margin-left: 15px;
-    border-radius: 30px;
-    background-color: rgba(82, 124, 217, 1);
+.profile-photo {
+  width: 40px;
+  height: 40px;
+  margin-left: 15px;
+  border-radius: 30px;
+  background-color: rgba(82, 124, 217, 1);
 }

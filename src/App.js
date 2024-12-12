@@ -10,20 +10,33 @@ import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './Pages/PrivateRoute';
 
 function App() {
-
   return (
     <>
-    <Router>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/signup" element={<Signup />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/client-dashboard" element={<PrivateRoute><ClientDashboard /></PrivateRoute>} />
-          <Route path="/photographer-dashboard" element={<PrivateRoute><PhotographerDashboard /></PrivateRoute>} />
-        </Routes>
-      </AuthProvider>
-    </Router>
+      <Router>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />
+            <Route
+              path="/client-dashboard"
+              element={
+                <PrivateRoute>
+                  <ClientDashboard />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/photographer-dashboard"
+              element={
+                <PrivateRoute>
+                  <PhotographerDashboard />
+                </PrivateRoute>
+              }
+            />
+          </Routes>
+        </AuthProvider>
+      </Router>
     </>
   );
 }

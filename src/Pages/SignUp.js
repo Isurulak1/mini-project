@@ -18,20 +18,22 @@ function Signup() {
   const emailRef = useRef();
   const passwordRef = useRef();
   const usernameRef = useRef();
-  const [role, setRole] = useState('client');
+  const [role, setRole] = useState("client");
   const [loading, setLoading] = useState(false);
 
   const handleRoleChange = (event) => {
     setRole(event.target.value);
   };
 
+  // Check username already exists
   const checkUsernameExists = async (username) => {
-    const userCollection = collection(db, 'users');
-    const q = query(userCollection, where('username', '==', username));
+    const userCollection = collection(db, "users");
+    const q = query(userCollection, where("username", "==", username));
     const userSnapshot = await getDocs(q);
     return !userSnapshot.empty;
   };
 
+  // Signup
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (
@@ -40,32 +42,36 @@ function Signup() {
       !passwordRef.current.value ||
       !role
     ) {
-      Swal.fire('Error', 'Please fill all the details', 'error');
+      Swal.fire("Error", "Please fill all the details", "error");
       return;
     }
 
     // Check if the username already exists
     const usernameExists = await checkUsernameExists(usernameRef.current.value);
     if (usernameExists) {
-      Swal.fire('Error', 'Username already taken', 'error');
+      Swal.fire("Error", "Username already taken", "error");
       return;
     }
 
     setLoading(true);
 
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, emailRef.current.value, passwordRef.current.value);
-      await setDoc(doc(db, 'users', userCredential.user.uid), {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        emailRef.current.value,
+        passwordRef.current.value
+      );
+      await setDoc(doc(db, "users", userCredential.user.uid), {
         username: usernameRef.current.value,
         email: emailRef.current.value,
-        profilePicture: '',
-        role: role
+        profilePicture: "",
+        role: role,
       });
 
-      Swal.fire('Success', 'Account created successfully!', 'success');
+      Swal.fire("Success", "Account created successfully!", "success");
       navigate(`/${role}-dashboard`); // Navigate to client-dashboard or photographer-dashboard based on role
     } catch (error) {
-      Swal.fire('Error', error.message, 'error');
+      Swal.fire("Error", error.message, "error");
     }
 
     setLoading(false);
@@ -74,39 +80,73 @@ function Signup() {
   return (
     <>
       <div>
-        <nav className='navbar'>
-          <div className='logo-head'>
-            <img src={logo} alt="" className='logo'/>
-            <div className='logo-text'>
+        <nav className="navbar">
+          <div className="logo-head">
+            <img src={logo} alt="" className="logo" />
+            <div className="logo-text">
               <h2>ShutterShare</h2>
               <p>Future Photography</p>
             </div>
           </div>
           <ul>
-            <li><LinkRouter to="/" className='action'>Home</LinkRouter></li>
-            <LinkRouter to="/login" style={{ textDecoration: 'none' }}>
-              <Button variant="outlined" color="primary" sx={{mr: 2, ml: 2, p: 1, width:'100px', border:'solid', borderWidth:2, '&:hover':{borderWidth:2}}}>
+            <li>
+              <LinkRouter to="/" className="action">
+                Home
+              </LinkRouter>
+            </li>
+            <LinkRouter to="/login" style={{ textDecoration: "none" }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                sx={{
+                  mr: 2,
+                  ml: 2,
+                  p: 1,
+                  width: "100px",
+                  border: "solid",
+                  borderWidth: 2,
+                  "&:hover": { borderWidth: 2 },
+                }}
+              >
                 Login
               </Button>
             </LinkRouter>
-            <LinkRouter to="/signup" style={{ textDecoration: 'none' }}>
-              <Button variant="outlined" color="primary" sx={{p: 1, width:'100px', border:'solid', borderWidth:2, '&:hover':{borderWidth:2}}}>
+            <LinkRouter to="/signup" style={{ textDecoration: "none" }}>
+              <Button
+                variant="outlined"
+                color="primary"
+                sx={{
+                  p: 1,
+                  width: "100px",
+                  border: "solid",
+                  borderWidth: 2,
+                  "&:hover": { borderWidth: 2 },
+                }}
+              >
                 Signup
               </Button>
             </LinkRouter>
           </ul>
         </nav>
       </div>
-      <Container component="main" maxWidth="xs" sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: 'calc(100vh - 50px)', 
-          }}>
-        <Card sx={{ mt: 8, p: 2, boxShadow: 3, width: '600px' }}>
+      <Container
+        component="main"
+        maxWidth="xs"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "calc(100vh - 50px)",
+        }}
+      >
+        <Card sx={{ mt: 8, p: 2, boxShadow: 3, width: "600px" }}>
           <CardContent>
-            <Typography component="h1" variant="h5" sx={{ fontWeight: 'bold', mb: 2 }}>
+            <Typography
+              component="h1"
+              variant="h5"
+              sx={{ fontWeight: "bold", mb: 2 }}
+            >
               Sign Up
             </Typography>
             <Box component="form" onSubmit={handleSubmit} noValidate>
@@ -145,8 +185,7 @@ function Signup() {
                     autoComplete="current-password"
                     inputRef={passwordRef}
                   />
-                  <FormControl fullWidth margin='normal'>
-                    
+                  <FormControl fullWidth margin="normal">
                     <InputLabel required>Select Role</InputLabel>
                     <Select
                       label="Select Role"
@@ -154,7 +193,7 @@ function Signup() {
                       required
                       onChange={handleRoleChange}
                       displayEmpty
-                      inputProps={{ 'aria-label': 'Role' }}
+                      inputProps={{ "aria-label": "Role" }}
                     >
                       <MenuItem value="client">Client</MenuItem>
                       <MenuItem value="photographer">Photographer</MenuItem>
@@ -163,26 +202,28 @@ function Signup() {
                 </Grid>
               </Grid>
               <Box>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                disabled={loading}
-                sx={{ mt: 3, mb: 2, p: '12px 12px', }}
-              >
-                Sign Up
-              </Button>
+                <Button
+                  type="submit"
+                  fullWidth
+                  variant="contained"
+                  color="primary"
+                  disabled={loading}
+                  sx={{ mt: 3, mb: 2, p: "12px 12px" }}
+                >
+                  Sign Up
+                </Button>
               </Box>
-              
             </Box>
             <Typography variant="body2" align="center" sx={{ mt: 2 }}>
-              Already have an account? <Link to="/login" underline="none">Log In</Link>
+              Already have an account?{" "}
+              <Link to="/login" underline="none">
+                Log In
+              </Link>
             </Typography>
           </CardContent>
         </Card>
       </Container>
-      <Footer/>
+      <Footer />
     </>
   );
 }

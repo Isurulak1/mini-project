@@ -1,52 +1,49 @@
-.filter{
+.filter {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  
 }
 
-.filter-f-content{
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-.filter-btn{
-    padding: 15px 40px;
-    border: none;
-    border-radius: 6px;
-    color: rgb(255, 255, 255);
-    background-color: rgba(82, 124, 217, 1);
-    cursor: pointer;
-    font-size: 18px;
-    transition: .3s;
-
-}
-.filter-btn:hover{
-    background: rgb(64, 97, 168);
+.filter-f-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.filter-btn:active{
-    transition: .1s;
-    background: rgb(125, 164, 249);
+.filter-btn {
+  padding: 15px 40px;
+  border: none;
+  border-radius: 6px;
+  color: rgb(255, 255, 255);
+  background-color: rgba(82, 124, 217, 1);
+  cursor: pointer;
+  font-size: 18px;
+  transition: 0.3s;
 }
-.distance{
-    margin-left: 50px;
-    margin-right: 20px;
+.filter-btn:hover {
+  background: rgb(64, 97, 168);
+}
+
+.filter-btn:active {
+  transition: 0.1s;
+  background: rgb(125, 164, 249);
+}
+.distance {
+  margin-left: 50px;
+  margin-right: 20px;
 }
 
 .horizontal-line {
-    height: 0.5px; 
-    background-color: #191919;
-    margin: 60px 0; 
-    width: 1200px;
+  height: 0.5px;
+  background-color: #191919;
+  margin: 60px 0;
+  width: 1200px;
 }
-.bx{
-    
-    outline: none;
-    padding: 15px 20px;
-    border: 1px solid #b6b6b6;
-    border-radius: 6px;
-    font-size: 14px; 
+.bx {
+  outline: none;
+  padding: 15px 20px;
+  border: 1px solid #b6b6b6;
+  border-radius: 6px;
+  font-size: 14px;
 }
