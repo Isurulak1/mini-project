@@ -822,6 +822,76 @@ function ClientDashboard() {
     }
   };
 
+
+  const handleAutoSelect = async () => {
+    if (images.length === 0) {
+      Swal.fire("Warning", "No images available for selection.", "warning");
+      return;
+    }
+  
+    setLoading(true); // Start loading state
+  
+    try {
+      // Load the model
+      const model = await tf.loadLayersModel("/model_tfjs/model.json");
+  
+      // Preprocess images and predict
+      const processedImages = images.map((images) => {
+        const imgElement = document.createElement("img");
+        imgElement.src = images.url; // Example: Replace with image source
+        return tf.browser.fromPixels(imgElement)
+          .resizeNearestNeighbor([224, 224])
+          .expandDims(0)
+          .toFloat()
+          .div(255); // Preprocess image
+      });
+  
+      const predictions = await Promise.all(
+        processedImages.map((imgTensor) => model.predict(imgTensor).array())
+      );
+  
+      // Select images based on predictions
+      const autoSelected = images.filter((_, index) => predictions[index][0] > 0.5); // Example condition
+  
+      if (autoSelected.length > 0) {
+        setSelectedImages(autoSelected.map((img) => img.url));
+  
+        // Optional: Store auto-selected images in Firestore (like your existing code)
+        const photographerRef = doc(db, `users/${selectedContact.uid}/receivedImages/${currentUser.uid}`);
+        const clientRef = doc(db, `users/${currentUser.uid}/receivedImages/${selectedContact.uid}`);
+  
+        const timestamp = new Date().toISOString();
+        const selectedData = autoSelected.map((img) => ({
+          fileName: img.url.split("/").pop(),
+          url: img.url,
+          timestamp,
+        }));
+  
+        await Promise.all([
+          setDoc(
+            photographerRef,
+            { images: selectedData },
+            { merge: true }
+          ),
+          setDoc(
+            clientRef,
+            { images: selectedData },
+            { merge: true }
+          ),
+        ]);
+  
+        Swal.fire("Success", "Images auto-selected successfully!", "success");
+      } else {
+        Swal.fire("Info", "No images were selected based on the model's prediction.", "info");
+      }
+    } catch (error) {
+      console.error("Error during auto-selection:", error);
+      Swal.fire("Error", `Failed to auto-select images: ${error.message}`, "error");
+    } finally {
+      setLoading(false); // Reset loading state
+    }
+  };
+  
   return (
     <>
       {/*======================================  Navbar section  ======================================*/}
@@ -1311,6 +1381,32 @@ function ClientDashboard() {
                         </Box>
                       ) : (
                         "Send Selected Images"
+                      )}
+                    </Button>
+                     <br/>
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      disabled={loading || selectedImages.length === 0} // Disable button during loading or if no images are selected
+                      sx={{
+                        mt: 2,
+                        p: "8px 16px",
+                        position: "relative",
+                        width: "250px",
+                        boxShadow: 0,
+                        textTransform: "none"
+                      }} // Preserve button padding and size
+                    >
+                      {loading ? (
+                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                          <CircularProgress
+                            size={24}
+                            sx={{ color: "inherit", mr: 1 }}
+                          />
+                          Selecting...
+                        </Box>
+                      ) : (
+                        "Auto select Images"
                       )}
                     </Button>
 
